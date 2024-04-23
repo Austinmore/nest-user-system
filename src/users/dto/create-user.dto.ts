@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsNotEmpty, IsOptional, IsPhoneNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -11,9 +11,12 @@ export class CreateUserDto {
     @MinLength(6, { message: 'Password must be at least 6 characters long' })
     password: string;
 
+    @ApiProperty({ example: 'John Doe', description: 'The full name of the user' })
+    @IsString({ message: 'Full name must be a string' })
+    @IsNotEmpty({ message: 'Full name cannot be empty' })
+    fullName: string; // Note the lowercase 'n'
 
-    @ApiProperty({ example: 'anyOptionalValue', description: 'An optional field', required: false })
-    @IsString({ each: true, message: 'OptionalField must be a string' })
-    @IsOptional()
-    optionalField?: string; 
+    @ApiProperty({ example: '+123456789', description: 'The phone number of the user' })
+    @IsPhoneNumber(null, { message: 'Invalid phone number' })
+    phoneNumber: string;
 }

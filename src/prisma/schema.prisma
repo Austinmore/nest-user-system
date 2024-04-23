@@ -6,7 +6,7 @@
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")  // Ensure this environment variable is correctly set in your .env file
 }
 
 generator client {
@@ -14,15 +14,21 @@ generator client {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  wallet    Wallet?  // Relation to Wallet model
+  id          String   @id @default(uuid())
+  email       String   @unique
+  fullName    String   // Full name of the user
+  phoneNumber String   // Contact phone number of the user
+  password    String   // Hashed password for the user
+  wallet      Wallet?  // Optional relation to a Wallet model
+  
+  @@map("users")  // Maps this model to the "users" table in your database
 }
 
 model Wallet {
   id      String   @id @default(uuid())
-  balance Float    @default(0)
+  balance Float    @default(0)  // Default balance is set to 0
   user    User     @relation(fields: [userId], references: [id])
   userId  String   @unique
+  
+  @@map("wallets")  // Maps this model to the "wallets" table in your database
 }

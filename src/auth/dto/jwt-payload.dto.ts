@@ -17,7 +17,4 @@ export class JwtPayloadDto {
     @IsOptional()
     username?: string;  // Optional: Username, for display or logging
 
-    @IsString()
-    @IsOptional()
-    sub?: string;  // Optional: Subject identifier, alternative to userId
 }

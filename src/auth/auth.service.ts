@@ -4,6 +4,7 @@ import { UsersService } from '../users/users.service';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty } from '@nestjs/swagger';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 
 // Define all DTOs before the AuthService class
 class JwtTokenResponse {
@@ -16,6 +17,10 @@ class RegisterUserDto {
     email: string;
     @ApiProperty({ example: 'strongpassword123', description: 'Password' })
     password: string;
+    @ApiProperty({ example: 'John Doe', description: 'Full name' })
+    fullName: string;
+    @ApiProperty({ example: '555-555-5555', description: 'Phone number' })
+    phoneNumber: string;
 }
 
 @ApiTags('Authentication')
@@ -55,15 +60,25 @@ export class AuthService {
 
     @ApiOperation({ summary: 'Register a new user' })
     @ApiBody({ type: RegisterUserDto, description: 'Registration data' })
-    @ApiResponse({ status: 201, description: 'User registered successfully' })
+    @ApiResponse({ status: 201, description: 'User registered successfully', type: JwtTokenResponse })
     @ApiResponse({ status: 400, description: 'Registration failed' })
-    async register(email: string, password: string) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await this.usersService.createUser(email, hashedPassword);
+    async register(createUserDto: CreateUserDto) {
+        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+        const newUser = await this.usersService.createUser(
+            createUserDto.email,
+            hashedPassword,
+            createUserDto.fullName,
+            createUserDto.phoneNumber
+        );
+
         if (newUser) {
-            const { password, ...result } = newUser;
-            return result;
+            // Note: Password is not returned for security reasons
+            const { password, ...userWithoutPassword } = newUser;
+            return {
+                ...userWithoutPassword,
+                access_token: this.jwtService.sign({ userId: newUser.id })
+            };
         }
-        return null;
+        throw new Error("Registration failed.");
     }
 }
