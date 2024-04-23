@@ -6,7 +6,6 @@ import * as bcrypt from 'bcryptjs';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiProperty } from '@nestjs/swagger';
 
 // Define all DTOs before the AuthService class
-
 class JwtTokenResponse {
     @ApiProperty({ example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })
     access_token: string;
@@ -23,9 +22,14 @@ class RegisterUserDto {
 @Injectable()
 export class AuthService {
     constructor(
-        private usersService: UsersService,
-        private jwtService: JwtService
-    ) {}
+        private usersService: UsersService,  // Injection of UsersService
+        private jwtService: JwtService        // Injection of JwtService
+    ) {
+        // Debugging log to check if services are injected properly
+        console.log('AuthService instantiated:', 
+                    'UsersService:', !!this.usersService, 
+                    'JwtService:', !!this.jwtService);
+    }
 
     @ApiOperation({ summary: 'Validate user credentials' })
     @ApiResponse({ status: 200, description: 'User is valid' })

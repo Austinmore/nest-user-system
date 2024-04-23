@@ -1,15 +1,16 @@
-// src/users/users.module.ts
-
-import { Module, Global } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaModule } from '../prisma/prisma.module';
+import { AuthModule } from '../auth/auth.module';
 
-@Global()  // Making this module global because it uses PrismaService which might be used elsewhere
 @Module({
-  imports: [],
-  providers: [UsersService, PrismaService],
+  imports: [
+    PrismaModule,
+    forwardRef(() => AuthModule)  
+  ],
   controllers: [UsersController],
-  exports: [UsersService, PrismaService]  // Also export PrismaService if it needs to be used by other modules
+  providers: [UsersService],
+  exports: [UsersService]
 })
 export class UsersModule {}
